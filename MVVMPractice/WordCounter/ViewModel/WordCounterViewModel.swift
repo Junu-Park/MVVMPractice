@@ -28,9 +28,11 @@ final class WordCounterObserver<T> {
 
 final class WordCounterViewModel {
     
+    private var defaultOutputData: String = "현재까지 0글자 작성중"
+    
     var inputData: WordCounterObserver<String?> = WordCounterObserver(value: nil)
     
-    var outputData: WordCounterObserver<String> = WordCounterObserver(value: "현재까지 0글자 작성중")
+    lazy var outputData: WordCounterObserver<String> = WordCounterObserver(value: self.defaultOutputData)
     
     init() {
         self.inputData.closure = { text in
@@ -40,7 +42,7 @@ final class WordCounterViewModel {
     
     private func countWords() {
         guard let inputString = self.inputData.value else {
-            self.outputData.value = "현재까지 0글자 작성중"
+            self.outputData.value = self.defaultOutputData
             return
         }
         self.outputData.value = "현재까지 \(inputString.count)글자 작성중"
