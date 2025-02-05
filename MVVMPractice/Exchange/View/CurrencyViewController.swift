@@ -12,7 +12,6 @@ class CurrencyViewController: UIViewController {
     
     private let exchangeRateLabel: UILabel = {
         let label = UILabel()
-        label.text = "현재 환율: 1 USD = 1,350 KRW"
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
@@ -45,12 +44,20 @@ class CurrencyViewController: UIViewController {
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
+    
+    private let viewModel: ExchangeViewModel = ExchangeViewModel()
      
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         setupActions()
+        
+        self.exchangeRateLabel.text = self.viewModel.currentRate
+        
+        self.viewModel.outputData.bind { result in
+            self.resultLabel.text = result
+        }
     }
      
     private func setupUI() {
@@ -90,14 +97,6 @@ class CurrencyViewController: UIViewController {
     }
      
     @objc private func convertButtonTapped() {
-        guard let amountText = amountTextField.text,
-              let amount = Double(amountText) else {
-            resultLabel.text = "올바른 금액을 입력해주세요"
-            return
-        }
-        
-        let exchangeRate = 1350.0 // 실제 환율 데이터로 대체 필요
-        let convertedAmount = amount / exchangeRate
-        resultLabel.text = String(format: "%.2f USD (약 $%.2f)", convertedAmount, convertedAmount)
+        self.viewModel.inputData.value = amountTextField.text
     }
 }
