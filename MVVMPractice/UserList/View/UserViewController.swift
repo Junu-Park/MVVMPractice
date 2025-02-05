@@ -9,8 +9,6 @@ import UIKit
 import SnapKit
 
 final class UserViewController: UIViewController {
- 
-    private var people: [Person] = []
     
     private let tableView: UITableView = {
         let table = UITableView()
@@ -57,12 +55,18 @@ final class UserViewController: UIViewController {
         return stackView
     }()
      
+    private var viewModel: UserViewModel = UserViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         setupTableView()
         setupActions()
+        
+        viewModel.outputData.closure = { data in
+            self.tableView.reloadData()
+        }
     }
      
     private func setupUI() {
@@ -100,37 +104,26 @@ final class UserViewController: UIViewController {
     }
      
     @objc private func loadButtonTapped() {
-        people = [
-            Person(name: "James", age: Int.random(in: 20...70)),
-            Person(name: "Mary", age: Int.random(in: 20...70)),
-            Person(name: "John", age: Int.random(in: 20...70)),
-            Person(name: "Patricia", age: Int.random(in: 20...70)),
-            Person(name: "Robert", age: Int.random(in: 20...70))
-        ]
-        tableView.reloadData()
+        self.viewModel.loadInput.value = ()
     }
     
     @objc private func resetButtonTapped() {
-        people.removeAll()
-        tableView.reloadData()
+        self.viewModel.resetInput.value = ()
     }
     
     @objc private func addButtonTapped() {
-        let names = ["James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", "William", "Elizabeth", "David", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Charles", "Karen"]
-        let user = Person(name: names.randomElement()!, age: Int.random(in: 20...70))
-        people.append(user)
-        tableView.reloadData()
+        self.viewModel.addInput.value = ()
     }
 }
  
 extension UserViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return people.count
+        return self.viewModel.outputData.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PersonCell", for: indexPath)
-        let person = people[indexPath.row]
+        let person = self.viewModel.outputData.value[indexPath.row]
         cell.textLabel?.text = "\(person.name), \(person.age)세"
         return cell
     }
